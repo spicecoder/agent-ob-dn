@@ -19,6 +19,35 @@
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            font-family: Georgia, serif;
+            font-style: italic;
+            color: #4B5563;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-line {
+            width: 30px;
+            height: 2px;
+        }
+
+        .legend-intention {
+            background: #6366F1;
+        }
+
+        .legend-reflection {
+            background: #10B981;
+        }
+
 
         .title {
             font-family: Georgia, serif;
@@ -123,6 +152,19 @@
                 </marker>
             </defs>
         </svg>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-line legend-intention"></div>
+                <span>Intention Emission</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line legend-reflection"></div>
+                <span>Intention Reflection</span>
+            </div>
+            <div class="legend-item" style="font-size: 0.9em; opacity: 0.8;">
+                <span>(Computation Reflects Intention)</span>
+            </div>
+        </div>
     </div>
 
     <script>
