@@ -79,6 +79,9 @@
             opacity: 0;
             transition: opacity 0.3s;
             pointer-events: none;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .pnr-payload.visible {
@@ -120,13 +123,23 @@
                 <text x="8" y="17" font-size="12" fill="#2563eb">PnR</text>
             </g>
 
-            <!-- PnR Payload -->
-            <g id="pnrPayload" class="pnr-payload">
-                <rect width="120" height="70" rx="4" fill="white" stroke="#2563eb"/>
-                <text x="10" y="20" font-size="10" fill="#2563eb">PnR Payload:</text>
-                <text x="10" y="35" font-size="10" fill="#2563eb">color_status: pending</text>
-                <text x="10" y="50" font-size="10" fill="#2563eb">operation: toggle</text>
-                <text x="10" y="65" font-size="10" fill="#2563eb">tv: U</text>
+            <!-- PnR Payloads -->
+            <g id="pnrPayloadToDesign" class="pnr-payload">
+                <rect width="180" height="80" rx="4" fill="white" stroke="#2563eb"/>
+                <g class="payload-content">
+                    <text x="10" y="20" font-size="12" fill="#2563eb">Current PnR State:</text>
+                    <text x="10" y="40" font-size="12" fill="#4B5563">my_color: <tspan id="currentColorText" fill="#2563eb">["red"]</tspan></text>
+                    <text x="10" y="60" font-size="12" fill="#4B5563">trivalence: "Y"</text>
+                </g>
+            </g>
+
+            <g id="pnrPayloadFromDesign" class="pnr-payload">
+                <rect width="180" height="80" rx="4" fill="white" stroke="#10B981"/>
+                <g class="payload-content">
+                    <text x="10" y="20" font-size="12" fill="#2563eb">Transformed PnR State:</text>
+                    <text x="10" y="40" font-size="12" fill="#4B5563">my_color: <tspan id="newColorText" fill="#10B981">["green"]</tspan></text>
+                    <text x="10" y="60" font-size="12" fill="#4B5563">trivalence: "Y"</text>
+                </g>
             </g>
 
             <!-- Arrows -->
@@ -180,37 +193,30 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            let isAnimating = false;
-            let currentColor = '#EF4444';
-
             const button = document.getElementById('triggerButton');
             const cloud = document.getElementById('cloud');
             const buttonRect = document.getElementById('buttonRect');
             const pnrBox = document.getElementById('pnrBox');
-            const pnrPayload = document.getElementById('pnrPayload');
+            const pnrPayloadToDesign = document.getElementById('pnrPayloadToDesign');
+            const pnrPayloadFromDesign = document.getElementById('pnrPayloadFromDesign');
             
             const humanToBall = document.getElementById('humanToBall');
             const ballToDesign = document.getElementById('ballToDesign');
             const designToBall = document.getElementById('designToBall');
             const ballToHuman = document.getElementById('ballToHuman');
 
-            pnrBox.addEventListener('click', (e) => {
-                const box = pnrBox.getBoundingClientRect();
-                const payload = pnrPayload.getBoundingClientRect();
-                console.log('box dim'+box.x+','+box.y)
-                const isNearDesignNode = box.x > 400;
-                // const xOffset = isNearDesignNode ? -140 : 50;
-                // const yOffset = -80;
-                const xOffset = -200;
-                const yOffset = -80;
-               // pnrPayload.style.transform = `translate(${box.x + xOffset}px, ${box.y + yOffset}px)`;
-                pnrPayload.style.transform = `translate(200px, 100px)`;
-                pnrPayload.classList.add('visible');
-                
-                setTimeout(() => {
-                    pnrPayload.classList.remove('visible');
-                }, 2000);
-            });
+            let isAnimating = false;
+            let currentState = {
+                color: 'red',
+                display: '#EF4444'
+            };
+
+            function computeNextState(currentColor) {
+                return {
+                    color: currentColor === 'red' ? 'green' : 'red',
+                    display: currentColor === 'red' ? '#10B981' : '#EF4444'
+                };
+            }
 
             function resetElements() {
                 humanToBall.classList.add('hidden');
@@ -218,20 +224,37 @@
                 designToBall.classList.add('hidden');
                 ballToHuman.classList.add('hidden');
                 pnrBox.classList.add('hidden');
-                pnrPayload.classList.remove('visible');
+                pnrPayloadToDesign.classList.remove('visible');
+                pnrPayloadFromDesign.classList.remove('visible');
             }
 
             function animatePnR(fromX, toX, fromY, duration = 3000) {
-                // Reset to initial position
                 pnrBox.style.transform = `translate(${fromX}px, ${fromY}px)`;
                 pnrBox.classList.remove('hidden');
                 
-                // Use requestAnimationFrame to ensure the initial position is rendered
                 requestAnimationFrame(() => {
                     pnrBox.style.transition = `transform ${duration}ms`;
                     pnrBox.style.transform = `translate(${toX}px, ${fromY}px)`;
                 });
             }
+
+            pnrBox.addEventListener('click', (e) => {
+                const box = pnrBox.getBoundingClientRect();
+                const isMovingToDesign = box.x < 400;
+                
+                if (isMovingToDesign) {
+                    // Immediately show current state
+                    document.getElementById('currentColorText').textContent = `["${currentState.color}"]`;
+                    pnrPayloadToDesign.classList.add('visible');
+                    setTimeout(() => pnrPayloadToDesign.classList.remove('visible'), 2000);
+                } else {
+                    // Show transformed state when returning
+                    const transformedState = computeNextState(currentState.color);
+                    document.getElementById('newColorText').textContent = `["${transformedState.color}"]`;
+                    pnrPayloadFromDesign.classList.add('visible');
+                    setTimeout(() => pnrPayloadFromDesign.classList.remove('visible'), 2000);
+                }
+            });
 
             button.addEventListener('click', () => {
                 if (isAnimating) return;
@@ -239,21 +262,28 @@
                 buttonRect.setAttribute('fill', '#818CF8');
                 
                 resetElements();
-                
                 humanToBall.classList.remove('hidden');
                 
                 setTimeout(() => {
                     ballToDesign.classList.remove('hidden');
-                    animatePnR(330, 430, 175); // Start from cloud position
+                    // Immediately show current state
+                    document.getElementById('currentColorText').textContent = `["${currentState.color}"]`;
+                    pnrPayloadToDesign.classList.add('visible');
+                    animatePnR(330, 430, 175);
+                    setTimeout(() => pnrPayloadToDesign.classList.remove('visible'), 3000);
                 }, 2000);
                 
                 setTimeout(() => {
+                    const transformedState = computeNextState(currentState.color);
+                    document.getElementById('newColorText').textContent = `["${transformedState.color}"]`;
                     designToBall.classList.remove('hidden');
-                    animatePnR(430, 330, 155); // Return to cloud position
+                    animatePnR(430, 330, 155);
                 }, 5500);
+
                 setTimeout(() => {
-                    currentColor = currentColor === '#EF4444' ? '#10B981' : '#EF4444';
-                    cloud.setAttribute('fill', currentColor);
+                    const transformedState = computeNextState(currentState.color);
+                    cloud.setAttribute('fill', transformedState.display);
+                    currentState = transformedState;
                     ballToHuman.classList.remove('hidden');
                 }, 9000);
                 
