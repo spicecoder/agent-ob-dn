@@ -1,8 +1,7 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PNR Computing Demo</title>
+    <title>PnR Computing Demo</title>
     <style>
         body {
             margin: 0;
@@ -19,6 +18,7 @@
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
+
         .legend {
             display: flex;
             justify-content: center;
@@ -48,7 +48,6 @@
             background: #10B981;
         }
 
-
         .title {
             font-family: Georgia, serif;
             font-style: italic;
@@ -71,6 +70,20 @@
         .button:hover {
             opacity: 0.9;
         }
+
+        .pnr-box {
+            cursor: pointer;
+        }
+
+        .pnr-payload {
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .pnr-payload.visible {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -91,37 +104,8 @@
                 <text x="110" y="195" text-anchor="middle" fill="white">Change Color</text>
             </g>
 
-            <!-- Arrows and Labels -->
-            <g id="humanToBall" class="hidden transition">
-                <path d="M 170 190 L 270 190" fill="none" stroke="#6366F1" stroke-width="2" marker-end="url(#arrowhead)"/>
-                <text x="220" y="210" text-anchor="middle" fill="#6366F1" font-size="12">"Change color"</text>
-            </g>
-
             <!-- Cloud Object -->
-            <path id="cloud" class="transition" fill="#EF4444" d="
-                M 300 205
-                c -4.5 0 -8.9 -0.6 -13.2 -1.7
-                c -3.7 3.2 -8.5 5.2 -13.8 5.2
-                c -11.6 0 -21 -9.4 -21 -21
-                c 0 -4.4 1.4 -8.5 3.7 -11.9
-                c -2.3 -3.4 -3.7 -7.5 -3.7 -11.9
-                c 0 -11.6 9.4 -21 21 -21
-                c 3.9 0 7.5 1.1 10.6 2.9
-                c 4.3 -5.3 10.9 -8.7 18.4 -8.7
-                c 13 0 23.5 10.5 23.5 23.5
-                c 0 2.6 -0.4 5.1 -1.2 7.5
-                c 7.8 3 13.2 10.5 13.2 19.4
-                c 0 11.6 -9.4 21 -21 21
-                c -5.3 0 -10.1 -2 -13.8 -5.2
-                c -4.3 1.1 -8.7 1.7 -13.2 1.7
-                z"
-            />
-
-            <!-- Cloud to Design Node -->
-            <g id="ballToDesign" class="hidden transition">
-                <path d="M 330 190 L 430 190" fill="none" stroke="#6366F1" stroke-width="2" marker-end="url(#arrowhead)"/>
-                <text x="380" y="210" text-anchor="middle" fill="#6366F1" font-size="12">"Request change"</text>
-            </g>
+            <path id="cloud" fill="#EF4444" d="M 300 205 c -4.5 0 -8.9 -0.6 -13.2 -1.7 c -3.7 3.2 -8.5 5.2 -13.8 5.2 c -11.6 0 -21 -9.4 -21 -21 c 0 -4.4 1.4 -8.5 3.7 -11.9 c -2.3 -3.4 -3.7 -7.5 -3.7 -11.9 c 0 -11.6 9.4 -21 21 -21 c 3.9 0 7.5 1.1 10.6 2.9 c 4.3 -5.3 10.9 -8.7 18.4 -8.7 c 13 0 23.5 10.5 23.5 23.5 c 0 2.6 -0.4 5.1 -1.2 7.5 c 7.8 3 13.2 10.5 13.2 19.4 c 0 11.6 -9.4 21 -21 21 c -5.3 0 -10.1 -2 -13.8 -5.2 c -4.3 1.1 -8.7 1.7 -13.2 1.7 z"/>
 
             <!-- Design Node -->
             <rect x="430" y="150" width="120" height="80" rx="5" fill="#FBBF24"/>
@@ -130,13 +114,37 @@
             <text x="490" y="215" text-anchor="middle" fill="white" font-family="monospace" font-size="10">  color = !color;</text>
             <text x="490" y="230" text-anchor="middle" fill="white" font-family="monospace" font-size="10">}</text>
 
-            <!-- Design Node to Cloud -->
+            <!-- Moving PnR Box with Payload -->
+            <g id="pnrBox" class="pnr-box hidden transition" transform="translate(330, 175)">
+                <rect width="40" height="25" rx="4" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+                <text x="8" y="17" font-size="12" fill="#2563eb">PnR</text>
+            </g>
+
+            <!-- PnR Payload -->
+            <g id="pnrPayload" class="pnr-payload">
+                <rect width="120" height="70" rx="4" fill="white" stroke="#2563eb"/>
+                <text x="10" y="20" font-size="10" fill="#2563eb">PnR Payload:</text>
+                <text x="10" y="35" font-size="10" fill="#2563eb">color_status: pending</text>
+                <text x="10" y="50" font-size="10" fill="#2563eb">operation: toggle</text>
+                <text x="10" y="65" font-size="10" fill="#2563eb">tv: U</text>
+            </g>
+
+            <!-- Arrows -->
+            <g id="humanToBall" class="hidden transition">
+                <path d="M 170 190 L 270 190" fill="none" stroke="#6366F1" stroke-width="2" marker-end="url(#arrowhead)"/>
+                <text x="220" y="210" text-anchor="middle" fill="#6366F1" font-size="12">"Change color"</text>
+            </g>
+
+            <g id="ballToDesign" class="hidden transition">
+                <path d="M 330 190 L 430 190" fill="none" stroke="#6366F1" stroke-width="2" marker-end="url(#arrowhead)"/>
+                <text x="380" y="210" text-anchor="middle" fill="#6366F1" font-size="12">"Request change"</text>
+            </g>
+
             <g id="designToBall" class="hidden transition">
                 <path d="M 430 170 L 330 170" fill="none" stroke="#10B981" stroke-width="2" marker-end="url(#greenArrow)"/>
                 <text x="380" y="150" text-anchor="middle" fill="#10B981" font-size="12">"Execute change"</text>
             </g>
 
-            <!-- Cloud to Human -->
             <g id="ballToHuman" class="hidden transition">
                 <path d="M 270 170 L 170 170" fill="none" stroke="#10B981" stroke-width="2" marker-end="url(#greenArrow)"/>
                 <text x="220" y="150" text-anchor="middle" fill="#10B981" font-size="12">"Color changed"</text>
@@ -152,6 +160,7 @@
                 </marker>
             </defs>
         </svg>
+
         <div class="legend">
             <div class="legend-item">
                 <div class="legend-line legend-intention"></div>
@@ -161,73 +170,100 @@
                 <div class="legend-line legend-reflection"></div>
                 <span>Intention Reflection</span>
             </div>
-          
         </div>
         <div class="legend">
-        <div class="legend-item" style="font-size: 0.9em; opacity: 0.8;">
-            <span>Computation Reflects Intention in CPUX </span>
+            <div class="legend-item" style="font-size: 0.9em; opacity: 0.8;">
+                <span>Computation Reflects Intention in CPUX</span>
+            </div>
         </div>
-        <div  style="font-size: 0.9em; opacity: 0.8;">
-            <span>( CPUX :Comman Path Of Understanding and Execution)</span>
-        </div>
-
     </div>
 
     <script>
-        let isAnimating = false;
-        let currentColor = '#EF4444';
+        document.addEventListener('DOMContentLoaded', function() {
+            let isAnimating = false;
+            let currentColor = '#EF4444';
 
-        const button = document.getElementById('triggerButton');
-        const cloud = document.getElementById('cloud');
-        const buttonRect = document.getElementById('buttonRect');
-        
-        const humanToBall = document.getElementById('humanToBall');
-        const ballToDesign = document.getElementById('ballToDesign');
-        const designToBall = document.getElementById('designToBall');
-        const ballToHuman = document.getElementById('ballToHuman');
+            const button = document.getElementById('triggerButton');
+            const cloud = document.getElementById('cloud');
+            const buttonRect = document.getElementById('buttonRect');
+            const pnrBox = document.getElementById('pnrBox');
+            const pnrPayload = document.getElementById('pnrPayload');
+            
+            const humanToBall = document.getElementById('humanToBall');
+            const ballToDesign = document.getElementById('ballToDesign');
+            const designToBall = document.getElementById('designToBall');
+            const ballToHuman = document.getElementById('ballToHuman');
 
-        function toggleColor() {
-            return currentColor === '#EF4444' ? '#10B981' : '#EF4444';
-        }
+            pnrBox.addEventListener('click', (e) => {
+                const box = pnrBox.getBoundingClientRect();
+                const payload = pnrPayload.getBoundingClientRect();
+                console.log('box dim'+box.x+','+box.y)
+                const isNearDesignNode = box.x > 400;
+                // const xOffset = isNearDesignNode ? -140 : 50;
+                // const yOffset = -80;
+                const xOffset = -200;
+                const yOffset = -80;
+               // pnrPayload.style.transform = `translate(${box.x + xOffset}px, ${box.y + yOffset}px)`;
+                pnrPayload.style.transform = `translate(200px, 100px)`;
+                pnrPayload.classList.add('visible');
+                
+                setTimeout(() => {
+                    pnrPayload.classList.remove('visible');
+                }, 2000);
+            });
 
-        function resetArrows() {
-            humanToBall.classList.add('hidden');
-            ballToDesign.classList.add('hidden');
-            designToBall.classList.add('hidden');
-            ballToHuman.classList.add('hidden');
-        }
+            function resetElements() {
+                humanToBall.classList.add('hidden');
+                ballToDesign.classList.add('hidden');
+                designToBall.classList.add('hidden');
+                ballToHuman.classList.add('hidden');
+                pnrBox.classList.add('hidden');
+                pnrPayload.classList.remove('visible');
+            }
 
-        button.addEventListener('click', () => {
-            if (isAnimating) return;
-            isAnimating = true;
-            buttonRect.setAttribute('fill', '#818CF8');
-            
-            resetArrows();
-            
-            // Animation sequence
-            humanToBall.classList.remove('hidden');
-            
-            setTimeout(() => {
-                ballToDesign.classList.remove('hidden');
-            }, 1500);
-            
-            setTimeout(() => {
-                designToBall.classList.remove('hidden');
-            }, 3000);
-            
-            setTimeout(() => {
-                currentColor = toggleColor();
-                cloud.setAttribute('fill', currentColor);
-                ballToHuman.classList.remove('hidden');
-            }, 4500);
-            
-            setTimeout(() => {
-                isAnimating = false;
-                buttonRect.setAttribute('fill', '#A5B4FC');
-                resetArrows();
-            }, 7500);
+            function animatePnR(fromX, toX, fromY, duration = 3000) {
+                // Reset to initial position
+                pnrBox.style.transform = `translate(${fromX}px, ${fromY}px)`;
+                pnrBox.classList.remove('hidden');
+                
+                // Use requestAnimationFrame to ensure the initial position is rendered
+                requestAnimationFrame(() => {
+                    pnrBox.style.transition = `transform ${duration}ms`;
+                    pnrBox.style.transform = `translate(${toX}px, ${fromY}px)`;
+                });
+            }
+
+            button.addEventListener('click', () => {
+                if (isAnimating) return;
+                isAnimating = true;
+                buttonRect.setAttribute('fill', '#818CF8');
+                
+                resetElements();
+                
+                humanToBall.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    ballToDesign.classList.remove('hidden');
+                    animatePnR(330, 430, 175); // Start from cloud position
+                }, 2000);
+                
+                setTimeout(() => {
+                    designToBall.classList.remove('hidden');
+                    animatePnR(430, 330, 155); // Return to cloud position
+                }, 5500);
+                setTimeout(() => {
+                    currentColor = currentColor === '#EF4444' ? '#10B981' : '#EF4444';
+                    cloud.setAttribute('fill', currentColor);
+                    ballToHuman.classList.remove('hidden');
+                }, 9000);
+                
+                setTimeout(() => {
+                    isAnimating = false;
+                    buttonRect.setAttribute('fill', '#A5B4FC');
+                    resetElements();
+                }, 12000);
+            });
         });
     </script>
 </body>
 </html>
-
