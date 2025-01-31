@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split View Intentions</title>
+    <style>
+        .intention-object {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+
+        .circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #4299e1;
+        }
+
+        /* Split areas */
+        .split-area {
+            position: absolute;
+            width: 100%;
+            height: 50%;
+            cursor: pointer;
+        }
+
+        .receiving-area {
+            top: 0;
+        }
+
+        .reflecting-area {
+            bottom: 0;
+        }
+
+        /* Center label */
+        .label {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Dividing line */
+        .divider {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            top: 50%;
+        }
+
+        /* Intention lists */
+        .intention-list {
+            position: absolute;
+            left: 110%;
+            background: black;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+            font-family: Arial, sans-serif;
+        }
+
+        .receiving-list {
+            top: 0;
+            border-left: 3px solid #48bb78;
+        }
+
+        .reflecting-list {
+            bottom: 0;
+            border-left: 3px solid #ed8936;
+        }
+
+        .intention-item {
+            margin: 5px 0;
+        }
+
+        .split-area:hover .intention-list {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="intention-object">
+        <div class="circle">
+            <div class="divider"></div>
+            <div class="label">Cart</div>
+            
+            <!-- Top half - Receiving -->
+            <div class="split-area receiving-area">
+                <div class="intention-list receiving-list">
+                    <div class="intention-item">→ Add Item</div>
+                    <div class="intention-item">→ Update Quantity</div>
+                    <div class="intention-item">→ Apply Coupon</div>
+                </div>
+            </div>
+
+            <!-- Bottom half - Reflecting -->
+            <div class="split-area reflecting-area">
+                <div class="intention-list reflecting-list">
+                    <div class="intention-item">← Order Placed</div>
+                    <div class="intention-item">← Cart Emptied</div>
+                    <div class="intention-item">← Price Updated</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
